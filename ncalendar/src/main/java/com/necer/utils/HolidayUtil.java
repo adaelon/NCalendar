@@ -20,6 +20,8 @@ public class HolidayUtil {
         String message = "";
         if (solarMonth == 1 && solarDay == 1) {
             message = "元旦";
+        } else if (solarMonth == 1 && solarDay == 3) {
+            message = "筥崎宫玉取祭";
         } else if (solarMonth == 2 && solarDay == 14) {
             message = "情人节";
         } else if (solarMonth == 3 && solarDay == 8) {

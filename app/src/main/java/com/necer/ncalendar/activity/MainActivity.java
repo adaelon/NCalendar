@@ -1,9 +1,18 @@
 package com.necer.ncalendar.activity;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,10 +29,50 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tvVersion = (TextView) findViewById(R.id.tv_version);
         tvVersion.setText("版本：" + Utils.getCurrentVersion(this));
+        createNotificationChannel();
+        scheduleAlarm();
+
 
 
     }
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Daily Notifications";
+            String description = "Channel for daily alarm notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("daily_alarm_channel", name, importance);
+            channel.setDescription(description);
 
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public void scheduleAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        Calendar calendar = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            calendar = Calendar.getInstance();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            calendar.setTimeInMillis(System.currentTimeMillis());
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            calendar.set(Calendar.HOUR_OF_DAY, 22);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            calendar.set(Calendar.MINUTE, 15);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, alarmIntent);
+        }
+    }
 
     public void month_selected(View view) {
         startActivity(getNewIntent(TestMonthActivity.class, CheckModel.SINGLE_DEFAULT_CHECKED, "月日历默认选中"));
